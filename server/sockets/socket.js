@@ -19,16 +19,18 @@ io.on('connection', (client) => {
         let personas = usuarios.agregarPersonas(client.id, res.nombre, res.sala);
 
         client.broadcast.to(res.sala).emit('listaPersona', usuarios.getPersonasPorSala(res.sala));
+        client.broadcast.to(res.sala).emit('crearMensaje', crearMensaje('Administrador', `${res.nombre} entró`));
 
         callback(usuarios.getPersonasPorSala(res.sala));
 
     });
 
-    client.on('crearMensaje', (data) => {
+    client.on('crearMensaje', (data, callback) => {
         let persona = usuarios.getPersona(client.id);
-
         let mensaje = crearMensaje(persona.nombre, data.mensaje);
-        client.broadcast.to(data.sala).emit('crearMensaje', mensaje);
+        client.broadcast.to(persona.sala).emit('crearMensaje', mensaje);
+
+        callback(mensaje);
     })
     
     // Mensajes privados
